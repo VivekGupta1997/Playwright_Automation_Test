@@ -9,6 +9,7 @@ test('Add New Pass Test', async ({ loginPage, passPage }) => {
         'viveksystemadmin'
     );
 
+    
     await passPage.navigateToAddPass();
     await passPage.fillPassDetails();
     await passPage.fillFeeDetailsAndPublish();

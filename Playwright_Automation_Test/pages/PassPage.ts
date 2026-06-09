@@ -1,123 +1,88 @@
-import { Page, Locator } from '@playwright/test';
-import { PassData, FeeData, DEFAULT_PASS_DATA } from '../tests/testData';
+import { Page } from '@playwright/test';
 
 export class PassPage {
-    readonly page: Page;
-
-    // Navigation Locators
-    readonly offeringsButton: Locator;
-    readonly passesButton: Locator;
-    readonly addPassLink: Locator;
-
-    // Pass Details Locators
-    readonly organizationDropdown: Locator;
-    readonly etrakDemo3Option: Locator;
-    readonly nameInput: Locator;
-    readonly passTypeDropdown: Locator;
-    readonly punchPassOption: Locator;
-    readonly numberPunchesInput: Locator;
-    readonly nextButton: Locator;
-
-    // Fee Details Locators
-    readonly feeNameInput: Locator;
-    readonly amountInput: Locator;
-    readonly glaDropdown: Locator;
-    readonly glaTestOption: Locator;
-    readonly deferredRevenueDropdown: Locator;
-    readonly deferredRevenueOption: Locator;
-    readonly publishButton: Locator;
-
-    constructor(page: Page) {
-        this.page = page;
-
-        // Navigation
-        this.offeringsButton = page.getByRole('button', { name: 'Offerings' });
-        this.passesButton = page.getByRole('button', { name: 'Passes' });
-        this.addPassLink = page.getByRole('link', { name: 'Add Pass' });
-
-        // Pass Details
-        this.organizationDropdown = page.locator('#mui-component-select-organization');
-        this.etrakDemo3Option = page.getByRole('option', { name: 'Etrak demo 3' });
-        this.nameInput = page.getByRole('textbox', { name: 'Name' });
-        this.passTypeDropdown = page.locator('#mui-component-select-passType');
-        this.punchPassOption = page.getByRole('option', { name: 'Punch Pass' });
-        this.numberPunchesInput = page.locator('input[name="numberPunches"]');
-        this.nextButton = page.getByRole('button', { name: 'Next' });
-
-        // Fee Details
-        this.feeNameInput = page.getByRole('textbox', { name: 'Fee Name' });
-        this.amountInput = page.getByPlaceholder('Amount');
-        this.glaDropdown = page.locator('#mui-component-select-GLA');
-        this.glaTestOption = page.getByRole('option', { name: 'Gla test' });
-        this.deferredRevenueDropdown = page.locator('#mui-component-select-selectedDeferredRevenue');
-        this.deferredRevenueOption = page.getByRole('option', { name: 'Deferred Revenue Test KMO' });
-        this.publishButton = page.getByRole('button', { name: 'Publish' });
-    }
+    constructor(readonly page: Page) {}
 
     async navigateToAddPass() {
-        await this.offeringsButton.click();
-        await this.passesButton.click();
-        await this.addPassLink.click();
+        if (await this.page.getByRole('button', { name: 'Offerings' }).isVisible()) {
+            await this.page.getByRole('button', { name: 'Offerings' }).click();
+        }
+        await this.page.getByRole('link', { name: 'Passes', exact: true }).click();
+        await this.page.getByRole('link', { name: 'Add Pass' }).click();
     }
 
-    async fillPassDetails(data: PassData = {}) {
-        const namePrefix = data.namePrefix ?? DEFAULT_PASS_DATA.namePrefix;
-        const organization = data.organization ?? DEFAULT_PASS_DATA.organization;
-        const passType = data.passType ?? DEFAULT_PASS_DATA.passType;
-        const numberPunches = data.numberPunches ?? DEFAULT_PASS_DATA.numberPunches;
+    async selectOrganization(organization: string = 'Etrak demo 3') {
+        await this.page.locator('#mui-component-select-organization').click();
+        await this.page.getByRole('option', { name: organization }).click();
+    }
 
-        await this.organizationDropdown.click();
-        if (organization === 'Etrak demo 3') {
-            await this.etrakDemo3Option.click();
-        } else {
-            await this.page.getByRole('option', { name: organization }).click();
-        }
-
-        await this.nameInput.click();
+    async fillPassName(namePrefix: string = 'New Pass') {
+        await this.page.getByRole('textbox', { name: 'Name' }).click();
         const timestamp = new Date().getTime();
-        await this.nameInput.fill(`${namePrefix} ${timestamp}`);
-
-        await this.passTypeDropdown.click();
-        if (passType === 'Punch Pass') {
-            await this.punchPassOption.click();
-        } else {
-            await this.page.getByRole('option', { name: passType }).click();
-        }
-
-        await this.numberPunchesInput.click();
-        await this.numberPunchesInput.fill(numberPunches);
-
-        await this.nextButton.click();
+        await this.page.getByRole('textbox', { name: 'Name' }).fill(`${namePrefix} ${timestamp}`);
     }
 
-    async fillFeeDetailsAndPublish(fee: FeeData = {}) {
-        const defaultFee = DEFAULT_PASS_DATA.fee;
-        const feeName = fee.name ?? defaultFee.name;
-        const amount = fee.amount ?? defaultFee.amount;
-        const gla = fee.gla ?? defaultFee.gla;
-        const deferredRevenue = fee.deferredRevenue ?? defaultFee.deferredRevenue;
+    async selectPassType(passType: string = 'Punch Pass') {
+        await this.page.locator('#mui-component-select-passType').click();
+        await this.page.getByRole('option', { name: passType }).click();
+    }
 
-        await this.feeNameInput.click();
-        await this.feeNameInput.fill(feeName);
+    async fillNumberPunches(numberPunches: string = '10') {
+        await this.page.locator('input[name="numberPunches"]').click();
+        await this.page.locator('input[name="numberPunches"]').fill(numberPunches);
+    }
 
-        await this.amountInput.click();
-        await this.amountInput.fill(amount);
+    async clickNext() {
+        await this.page.getByRole('button', { name: 'Next' }).click();
+    }
 
-        await this.glaDropdown.click();
-        if (gla === 'Gla test') {
-            await this.glaTestOption.click();
-        } else {
-            await this.page.getByRole('option', { name: gla }).click();
-        }
+    async fillFeeName(feeName: string = 'fee') {
+        await this.page.getByRole('textbox', { name: 'Fee Name' }).click();
+        await this.page.getByRole('textbox', { name: 'Fee Name' }).fill(feeName);
+    }
 
-        await this.deferredRevenueDropdown.click();
-        if (deferredRevenue === 'Deferred Revenue Test KMO') {
-            await this.deferredRevenueOption.click();
-        } else {
-            await this.page.getByRole('option', { name: deferredRevenue }).click();
-        }
+    async fillAmount(amount: string = '050') {
+        await this.page.getByPlaceholder('Amount').click();
+        await this.page.getByPlaceholder('Amount').fill(amount);
+    }
 
-        await this.publishButton.click();
+    async selectGLA(gla: string = 'Gla test') {
+        await this.page.locator('#mui-component-select-GLA').click();
+        await this.page.getByRole('option', { name: gla }).click();
+    }
+
+    async selectDeferredRevenue(deferredRevenue: string = 'Deferred Revenue Test KMO') {
+        await this.page.locator('#mui-component-select-selectedDeferredRevenue').click();
+        await this.page.getByRole('option', { name: deferredRevenue }).click();
+    }
+
+    async clickPublish() {
+        await this.page.getByRole('button', { name: 'Publish' }).click();
+    }
+
+    async fillPassDetails(
+        organization: string = 'Etrak demo 3',
+        namePrefix: string = 'New Pass',
+        passType: string = 'Punch Pass',
+        numberPunches: string = '10'
+    ) {
+        await this.selectOrganization(organization);
+        await this.fillPassName(namePrefix);
+        await this.selectPassType(passType);
+        await this.fillNumberPunches(numberPunches);
+        await this.clickNext();
+    }
+
+    async fillFeeDetailsAndPublish(
+        feeName: string = 'fee',
+        amount: string = '050',
+        gla: string = 'Gla test',
+        deferredRevenue: string = 'Deferred Revenue Test KMO'
+    ) {
+        await this.fillFeeName(feeName);
+        await this.fillAmount(amount);
+        await this.selectGLA(gla);
+        await this.selectDeferredRevenue(deferredRevenue);
+        await this.clickPublish();
     }
 }
-

@@ -1,14 +1,21 @@
-import { test, expect } from './fixtures';
-import { DEFAULT_PASS_DATA } from './testData';
+import { test, expect } from '@playwright/test';
+import { LoginPage, PassPage } from '../pages';
 
-test('Add New Pass Test', async ({ passPage }) => {
-    test.setTimeout(120000); // Pass creation flows can be complex
+test('Add New Pass Test', async ({ page }) => {
+    test.setTimeout(240000); // 4 minutes timeout
 
+    const loginPage = new LoginPage(page);
+    const passPage = new PassPage(page);
+
+    // Login first
+    await loginPage.navigateToLoginPage();
+    await loginPage.login();
+
+    // Add Pass Flow using simple POM methods
     await passPage.navigateToAddPass();
-    await passPage.fillPassDetails(DEFAULT_PASS_DATA);
-    await passPage.fillFeeDetailsAndPublish(DEFAULT_PASS_DATA.fee);
+    await passPage.fillPassDetails();
+    await passPage.fillFeeDetailsAndPublish();
 
     // Verify pass was published successfully and redirected to the list
-    await expect(passPage.page).toHaveURL(/.*\/passes/);
+    await expect(page).toHaveURL(/.*\/passes/);
 });
-

@@ -1,112 +1,77 @@
-import { Page, Locator } from '@playwright/test';
-import { UserData, DEFAULT_USER_DATA, DEFAULT_LOGIN_URL } from '../tests/testData';
+import { Page } from '@playwright/test';
+
+export const DEFAULT_USER_DATA = {
+    organization: 'Etrak demo 3',
+    firstName: 'ranger',
+    lastName: 'new',
+    email: 'ranger1254@gmail.com',
+    address1: 'Indore',
+    city: 'Indore',
+    state: 'Arizona',
+    zipCode: '452015',
+    phoneNumber: '(999)999-9999',
+    role: 'rental',
+    dob: '04/15/1994',
+};
 
 export class UserPage {
-    readonly page: Page;
-    readonly usersButton: Locator;
-    readonly addUsersButton: Locator;
-    readonly organizationDropdown: Locator;
-    readonly etrakDemo3Option: Locator;
-    readonly firstNameInput: Locator;
-    readonly lastNameInput: Locator;
-    readonly emailInput: Locator;
-    readonly address1Input: Locator;
-    readonly cityInput: Locator;
-    readonly stateDropdown: Locator;
-    readonly arizonaOption: Locator;
-    readonly zipCodeInput: Locator;
-    readonly phoneNumberInput: Locator;
-    readonly roleCheckbox: Locator;
-    readonly rentalRoleOption: Locator;
-    readonly dobInput: Locator;
-    readonly saveButton: Locator;
-
-    constructor(page: Page) {
-        this.page = page;
-        this.usersButton = page.getByRole('button', { name: 'Users' });
-        this.addUsersButton = page.getByRole('button', { name: 'Add Users' });
-        this.organizationDropdown = page.getByLabel('', { exact: true }).first();
-        this.etrakDemo3Option = page.getByRole('option', { name: 'Etrak demo 3' });
-        this.firstNameInput = page.locator('input[name="firstName"]');
-        this.lastNameInput = page.locator('input[name="lastName"]');
-        this.emailInput = page.locator('input[name="email"]');
-        this.address1Input = page.locator('input[name="address1"]');
-        this.cityInput = page.locator('input[name="city"]');
-        this.stateDropdown = page.locator('#state');
-        this.arizonaOption = page.getByRole('option', { name: 'Arizona', exact: true });
-        this.zipCodeInput = page.locator('input[name="zipCode"]');
-        this.phoneNumberInput = page.locator('input[name="phoneNumber"]');
-        this.roleCheckbox = page.locator('#demo-multiple-checkbox').nth(1);
-        this.rentalRoleOption = page.getByRole('option', { name: /rental/i });
-        this.dobInput = page.locator('.MuiInputBase-root', { has: page.getByRole('button', { name: 'Choose date' }) }).locator('input');
-        this.saveButton = page.getByRole('button', { name: 'Save' });
-    }
+    constructor(readonly page: Page) {}
 
     async navigateToUsersPage() {
-        await this.page.goto(DEFAULT_LOGIN_URL);
-        await this.usersButton.click();
+        const link = this.page.getByRole('link', { name: 'Users', exact: true });
+        if (await link.isVisible()) {
+            await link.click();
+        } else {
+            await this.page.goto('https://yellow-plant-07ff7231e.5.azurestaticapps.net/');
+            await link.click();
+        }
     }
 
     async clickAddUsers() {
-        await this.addUsersButton.click();
+        await this.page.getByRole('link', { name: 'Add Users' }).or(this.page.getByRole('button', { name: 'Add Users' })).first().click();
     }
 
-    async selectOrganization(orgName?: string) {
-        const targetOrg = orgName ?? DEFAULT_USER_DATA.organization;
-        await this.organizationDropdown.click();
-        if (targetOrg === 'Etrak demo 3') {
-            await this.etrakDemo3Option.click();
-        } else {
-            await this.page.getByRole('option', { name: targetOrg }).click();
-        }
+    async selectOrganization(orgName: string = DEFAULT_USER_DATA.organization) {
+        await this.page.locator('.MuiSelect-select').first().click();
+        await this.page.getByRole('option', { name: orgName }).click();
         await this.page.keyboard.press('Escape');
     }
 
-    async fillUserDetails(data: UserData = {}) {
+    async fillUserDetails(data: Partial<typeof DEFAULT_USER_DATA> = {}) {
         const firstName = data.firstName ?? DEFAULT_USER_DATA.firstName;
         const lastName = data.lastName ?? DEFAULT_USER_DATA.lastName;
-        const email = data.email ?? DEFAULT_USER_DATA.email;
+        const email = data.email ?? `${DEFAULT_USER_DATA.email.split('@')[0]}_${Date.now()}@gmail.com`;
         const address1 = data.address1 ?? DEFAULT_USER_DATA.address1;
         const city = data.city ?? DEFAULT_USER_DATA.city;
         const state = data.state ?? DEFAULT_USER_DATA.state;
         const zipCode = data.zipCode ?? DEFAULT_USER_DATA.zipCode;
         const phoneNumber = data.phoneNumber ?? DEFAULT_USER_DATA.phoneNumber;
 
-        await this.firstNameInput.fill(firstName);
-        await this.lastNameInput.fill(lastName);
-        await this.emailInput.fill(email);
-        await this.address1Input.fill(address1);
-        await this.cityInput.fill(city);
-        await this.stateDropdown.click();
+        await this.page.locator('input[name="firstName"]').fill(firstName);
+        await this.page.locator('input[name="lastName"]').fill(lastName);
+        await this.page.locator('input[name="email"]').fill(email);
+        await this.page.locator('input[name="address1"]').fill(address1);
+        await this.page.locator('input[name="city"]').fill(city);
+
+        await this.page.locator('#state').click();
+        await this.page.getByRole('option', { name: state, exact: true }).click();
         
-        if (state === 'Arizona') {
-            await this.arizonaOption.click();
-        } else {
-            await this.page.getByRole('option', { name: state, exact: true }).click();
-        }
-        
-        await this.zipCodeInput.fill(zipCode);
-        await this.phoneNumberInput.fill(phoneNumber);
+        await this.page.locator('input[name="zipCode"]').fill(zipCode);
+        await this.page.locator('input[name="phoneNumber"]').fill(phoneNumber);
     }
 
-    async selectRole(roleName?: string) {
-        const targetRole = roleName ?? DEFAULT_USER_DATA.role;
-        await this.roleCheckbox.click();
-        if (targetRole.toLowerCase() === 'rental') {
-            await this.rentalRoleOption.click();
-        } else {
-            await this.page.getByRole('option', { name: new RegExp(targetRole, 'i') }).click();
-        }
+    async selectRole(roleName: string = DEFAULT_USER_DATA.role) {
+        await this.page.locator('#demo-multiple-checkbox').last().click();
+        await this.page.getByRole('option', { name: new RegExp(roleName, 'i') }).click();
         await this.page.keyboard.press('Escape');
     }
 
-    async selectDOB(dob?: string) {
-        const targetDob = dob ?? DEFAULT_USER_DATA.dob;
-        await this.dobInput.fill(targetDob);
+    async selectDOB(dob: string = DEFAULT_USER_DATA.dob) {
+        const dobContainer = this.page.locator('.MuiInputBase-root', { has: this.page.getByRole('button', { name: 'Choose date' }) });
+        await dobContainer.locator('input').fill(dob);
     }
 
     async saveUser() {
-        await this.saveButton.click();
+        await this.page.getByRole('button', { name: 'Save' }).click();
     }
 }
-

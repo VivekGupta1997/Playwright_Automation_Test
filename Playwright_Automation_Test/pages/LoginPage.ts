@@ -1,36 +1,29 @@
-import { Page, Locator } from '@playwright/test';
-import { LoginCredentials, DEFAULT_CREDENTIALS, DEFAULT_LOGIN_URL } from '../tests/testData';
+import { Page } from '@playwright/test';
 
 export class LoginPage {
-    readonly page: Page;
-    readonly usernameInput: Locator;
-    readonly passwordInput: Locator;
-    readonly signInButton: Locator;
+    constructor(readonly page: Page) {}
 
-    constructor(page: Page) {
-        this.page = page;
-        this.usernameInput = page.getByRole('textbox', { name: 'Email Address / Username' });
-        this.passwordInput = page.getByRole('textbox', { name: 'Password' });
-        this.signInButton = page.getByRole('button', { name: 'Sign in', exact: true });
+    async navigateToLoginPage() {
+        await this.page.goto('https://yellow-plant-07ff7231e.5.azurestaticapps.net/');
     }
 
-    async navigateToLoginPage(url: string = DEFAULT_LOGIN_URL) {
-        await this.page.goto(url);
+    async fillUsername(username: string) {
+        await this.page.getByRole('textbox', { name: 'Email Address / Username' }).fill(username);
     }
 
-    async login(credentials: LoginCredentials = {}) {
-        const username = credentials.username ?? DEFAULT_CREDENTIALS.username;
-        const password = credentials.password ?? DEFAULT_CREDENTIALS.password;
+    async fillPassword(password: string) {
+        await this.page.getByRole('textbox', { name: 'Password' }).fill(password);
+    }
 
-        if (!username || !password) {
-            throw new Error('Username and password are required for login');
-        }
-        await this.usernameInput.fill(username);
-        await this.passwordInput.fill(password);
-        await this.signInButton.click();
-
-        // Wait for the login navigation to complete (wait until URL no longer contains '/login')
+    async clickSignIn() {
+        await this.page.getByRole('button', { name: 'Sign in', exact: true }).click();
+        // Wait for the login redirection to complete
         await this.page.waitForURL((url) => !url.href.includes('/login'), { timeout: 15000 });
     }
-}
 
+    async login(username: string = 'viveksystemadmin@gmail.com', password: string = 'viveksystemadmin') {
+        await this.fillUsername(username);
+        await this.fillPassword(password);
+        await this.clickSignIn();
+    }
+}

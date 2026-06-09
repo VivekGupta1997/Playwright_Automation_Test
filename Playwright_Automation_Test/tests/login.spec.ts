@@ -1,17 +1,18 @@
-import { test, expect } from './fixtures';
-import { DEFAULT_CREDENTIALS } from './testData';
+import { test, expect } from '@playwright/test';
+import { LoginPage } from '../pages';
 
-test('Login Test', async ({ page, loginPage }) => {
+test('Login Test', async ({ page }) => {
     test.setTimeout(60000); // Set timeout to 60 seconds
+
+    const loginPage = new LoginPage(page);
 
     // Navigate to the login page
     await loginPage.navigateToLoginPage();
     
-    // Perform login action using centralized credentials
-    await loginPage.login(DEFAULT_CREDENTIALS);
+    // Perform login action using defaults
+    await loginPage.login();
 
     // Verify successful login
-    // The login method already waits for the URL to change, so we can assert that we are no longer on the login page
     await expect(page).not.toHaveURL(/.*\/login/);
 });
 

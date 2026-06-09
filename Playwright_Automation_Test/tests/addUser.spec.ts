@@ -1,26 +1,19 @@
-import { test } from './fixtures';
+import { test, expect } from './fixtures';
+import { DEFAULT_USER_DATA } from './testData';
 
-test('Add New User Test', async ({ loginPage, userPage, programPage }) => {
-    test.setTimeout(120000); // Increase timeout because of slowMo: 1000
-
-    await loginPage.navigateToLoginPage();
-    await loginPage.login(
-        'viveksystemadmin@gmail.com',
-        'viveksystemadmin'
-    );
+test('Add New User Test', async ({ userPage }) => {
+    test.setTimeout(90000); // 90 seconds timeout for standard flow
 
     // Add User Flow
     await userPage.navigateToUsersPage();
     await userPage.clickAddUsers();
-    await userPage.selectOrganization();
-    await userPage.fillUserDetails();
-    await userPage.selectRole();
-    await userPage.selectDOB();
+    await userPage.selectOrganization(DEFAULT_USER_DATA.organization);
+    await userPage.fillUserDetails(DEFAULT_USER_DATA);
+    await userPage.selectRole(DEFAULT_USER_DATA.role);
+    await userPage.selectDOB(DEFAULT_USER_DATA.dob);
     await userPage.saveUser();
 
-    // Add Program Flow
-    await programPage.navigateToAddProgram();
-    await programPage.fillProgramDetails();
-    await programPage.fillFeeDetails();
-    await programPage.addTaxAndPublish();
+    // Verify successful redirection back to users list
+    await expect(userPage.page).toHaveURL(/.*\/users/);
 });
+

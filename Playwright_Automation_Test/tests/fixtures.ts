@@ -1,8 +1,9 @@
-import { test as base } from '@playwright/test';
+import { test as base, Page } from '@playwright/test';
 import { LoginPage, PassPage, ProgramPage, UserPage } from '../pages';
 
 type MyFixtures = {
     loginPage: LoginPage;
+    loggedInPage: Page;
     passPage: PassPage;
     programPage: ProgramPage;
     userPage: UserPage;
@@ -12,15 +13,21 @@ export const test = base.extend<MyFixtures>({
     loginPage: async ({ page }, use) => {
         await use(new LoginPage(page));
     },
-    passPage: async ({ page }, use) => {
-        await use(new PassPage(page));
+    loggedInPage: async ({ page, loginPage }, use) => {
+        await loginPage.navigateToLoginPage();
+        await loginPage.login(); // Authenticate using centralized default credentials
+        await use(page);
     },
-    programPage: async ({ page }, use) => {
-        await use(new ProgramPage(page));
+    passPage: async ({ loggedInPage }, use) => {
+        await use(new PassPage(loggedInPage));
     },
-    userPage: async ({ page }, use) => {
-        await use(new UserPage(page));
+    programPage: async ({ loggedInPage }, use) => {
+        await use(new ProgramPage(loggedInPage));
+    },
+    userPage: async ({ loggedInPage }, use) => {
+        await use(new UserPage(loggedInPage));
     },
 });
 
 export { expect } from '@playwright/test';
+

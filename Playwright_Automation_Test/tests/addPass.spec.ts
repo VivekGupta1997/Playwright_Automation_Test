@@ -1,16 +1,14 @@
-import { test } from './fixtures';
+import { test, expect } from './fixtures';
+import { DEFAULT_PASS_DATA } from './testData';
 
-test('Add New Pass Test', async ({ loginPage, passPage }) => {
-    test.setTimeout(120000); // Increase timeout for complex flows
+test('Add New Pass Test', async ({ passPage }) => {
+    test.setTimeout(120000); // Pass creation flows can be complex
 
-    await loginPage.navigateToLoginPage();
-    await loginPage.login(
-        'viveksystemadmin@gmail.com',
-        'viveksystemadmin'
-    );
-
-    
     await passPage.navigateToAddPass();
-    await passPage.fillPassDetails();
-    await passPage.fillFeeDetailsAndPublish();
+    await passPage.fillPassDetails(DEFAULT_PASS_DATA);
+    await passPage.fillFeeDetailsAndPublish(DEFAULT_PASS_DATA.fee);
+
+    // Verify pass was published successfully and redirected to the list
+    await expect(passPage.page).toHaveURL(/.*\/passes/);
 });
+

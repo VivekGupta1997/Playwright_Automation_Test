@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { ProgramData, FeeData, TaxData, DEFAULT_PROGRAM_DATA } from '../tests/testData';
 
 export class ProgramPage {
     readonly page: Page;
@@ -128,16 +129,29 @@ export class ProgramPage {
         await cells.nth(offset).click();
     }
 
-    async fillProgramDetails() {
+    async fillProgramDetails(data: ProgramData = {}) {
+        const namePrefix = data.namePrefix ?? DEFAULT_PROGRAM_DATA.namePrefix;
+        const organization = data.organization ?? DEFAULT_PROGRAM_DATA.organization;
+        const connectedResource = data.connectedResource ?? DEFAULT_PROGRAM_DATA.connectedResource;
+        const maxAttendance = data.maxAttendance ?? DEFAULT_PROGRAM_DATA.maxAttendance;
+
         await this.nameInput.click();
         const timestamp = new Date().getTime();
-        await this.nameInput.fill(`Etrak demo ${timestamp}`);
+        await this.nameInput.fill(`${namePrefix} ${timestamp}`);
 
         await this.organizationDropdown.click();
-        await this.etrakDemo3Option.click();
+        if (organization === 'Etrak demo 3') {
+            await this.etrakDemo3Option.click();
+        } else {
+            await this.page.getByRole('option', { name: organization }).click();
+        }
 
         await this.connectedResourceDropdown.click();
-        await this.amTestOption.click();
+        if (connectedResource === 'AM test') {
+            await this.amTestOption.click();
+        } else {
+            await this.page.getByRole('option', { name: connectedResource }).click();
+        }
 
         // Generate random valid offsets to ensure strict chronological order
         // Reg Start < Reg End < Program Start
@@ -178,21 +192,44 @@ export class ProgramPage {
         await this.okButton.click();
 
         await this.maxAttendanceInput.click();
-        await this.maxAttendanceInput.fill('10');
+        await this.maxAttendanceInput.fill(maxAttendance);
         await this.nextButton.click();
     }
 
-    async fillFeeDetails() {
+    async fillFeeDetails(fee: FeeData = {}) {
+        const defaultFee = DEFAULT_PROGRAM_DATA.fee;
+        const feeName = fee.name ?? defaultFee.name;
+        const amount = fee.amount ?? defaultFee.amount;
+        const gla = fee.gla ?? defaultFee.gla;
+        const deferredRevenue = fee.deferredRevenue ?? defaultFee.deferredRevenue;
+        const glaAccount = fee.glaAccount ?? defaultFee.glaAccount;
+        const liability = fee.liability ?? defaultFee.liability;
+
         await this.feeNameInput.click();
-        await this.feeNameInput.fill('fee');
+        await this.feeNameInput.fill(feeName);
         await this.amountInput.click();
-        await this.amountInput.fill('020');
+        await this.amountInput.fill(amount);
         await this.glaDropdown.click();
-        await this.glaTestOption.click();
+        
+        if (gla === 'Gla test') {
+            await this.glaTestOption.click();
+        } else {
+            await this.page.getByRole('option', { name: gla }).click();
+        }
+
         await this.deferredRevenueDropdown.click();
-        await this.deferredRevenueOption.click();
+        if (deferredRevenue === 'Deferred Revenue Test KMO') {
+            await this.deferredRevenueOption.click();
+        } else {
+            await this.page.getByRole('option', { name: deferredRevenue }).click();
+        }
+
         await this.glaAccountDropdown.click();
-        await this.salesTaxOption.click();
+        if (glaAccount === 'SALES TAX') {
+            await this.salesTaxOption.click();
+        } else {
+            await this.page.getByRole('option', { name: glaAccount, exact: true }).click();
+        }
 
         // Use a robust locator to find the next combobox instead of the brittle empty label
         let liabilityDropdown = this.page.getByLabel('', { exact: true });
@@ -200,7 +237,12 @@ export class ProgramPage {
             liabilityDropdown = this.page.locator('.MuiSelect-select').last();
         }
         await liabilityDropdown.click();
-        await this.liabilityOption.click();
+        
+        if (liability === '- Liability') {
+            await this.liabilityOption.click();
+        } else {
+            await this.page.getByRole('option', { name: liability }).click();
+        }
 
         // Force close any lingering dropdown popups before clicking next
         await this.page.keyboard.press('Escape');
@@ -211,7 +253,14 @@ export class ProgramPage {
         await this.page.waitForTimeout(1000);
     }
 
-    async addTaxAndPublish() {
+    async addTaxAndPublish(tax: TaxData = {}) {
+        const defaultTax = DEFAULT_PROGRAM_DATA.tax;
+        const addonName = tax.addonName ?? defaultTax.addonName;
+        const price = tax.price ?? defaultTax.price;
+        const maxNumAvailable = tax.maxNumAvailable ?? defaultTax.maxNumAvailable;
+        const gla = tax.gla ?? defaultTax.gla;
+        const glaAccount = tax.glaAccount ?? defaultTax.glaAccount;
+
         // Dynamically find the Add-on / Tax name textbox. 
         // Use a fallback to find any visible textbox if it's not strictly labelled.
         let addonNameInput = this.page.getByRole('textbox', { name: /Name/i }).last();
@@ -229,19 +278,24 @@ export class ProgramPage {
         }
 
         await addonNameInput.click();
-        await addonNameInput.fill('adding add on');
+        await addonNameInput.fill(addonName);
+        
         // Dynamically find the GLA dropdown relative to its label
         const addonGlaLabel = this.page.locator('label').filter({ hasText: /^GLA\s*\**$/i }).last();
         await addonGlaLabel.locator('xpath=..').locator('.MuiSelect-select').click();
         
         // Wait for dropdown to open and gracefully select an option
         await this.page.waitForTimeout(300);
-        const glaOption = this.page.getByRole('option', { name: /Gla test/i });
-        if (await glaOption.count() > 0) {
-            await glaOption.first().click();
+        if (gla === 'Gla test') {
+            await this.glaTestOption.first().click();
         } else {
-            // Fallback: Just pick the first available option if "Gla test" is missing
-            await this.page.getByRole('option').nth(1).click(); // nth(1) skips empty/default if any
+            const opt = this.page.getByRole('option', { name: new RegExp(gla, 'i') });
+            if (await opt.count() > 0) {
+                await opt.first().click();
+            } else {
+                // Fallback: Just pick the first available option
+                await this.page.getByRole('option').nth(1).click();
+            }
         }
         
         // Dynamically find the GLA Account dropdown
@@ -250,16 +304,27 @@ export class ProgramPage {
         await this.page.waitForTimeout(300);
         
         // Gracefully pick an account option
-        const accountOption = this.page.getByRole('option');
-        if (await accountOption.count() > 0) {
-            await accountOption.last().click();
+        if (glaAccount) {
+            const opt = this.page.getByRole('option', { name: new RegExp(glaAccount, 'i') });
+            if (await opt.count() > 0) {
+                await opt.first().click();
+            } else {
+                await this.page.getByRole('option').last().click();
+            }
         } else {
-            await this.page.keyboard.press('Escape'); // Close if empty
+            const accountOption = this.page.getByRole('option');
+            if (await accountOption.count() > 0) {
+                await accountOption.last().click();
+            } else {
+                await this.page.keyboard.press('Escape'); // Close if empty
+            }
         }
+        
         await this.priceInput.click();
-        await this.priceInput.fill('20');
+        await this.priceInput.fill(price);
         await this.maxNumAvailableInput.click();
-        await this.maxNumAvailableInput.fill('010');
+        await this.maxNumAvailableInput.fill(maxNumAvailable);
         await this.publishButton.click();
     }
 }
+

@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { LoginCredentials, DEFAULT_CREDENTIALS, DEFAULT_LOGIN_URL } from '../tests/testData';
 
 export class LoginPage {
     readonly page: Page;
@@ -13,13 +14,16 @@ export class LoginPage {
         this.signInButton = page.getByRole('button', { name: 'Sign in', exact: true });
     }
 
-    async navigateToLoginPage() {
-        await this.page.goto('https://yellow-plant-07ff7231e.5.azurestaticapps.net/login');
+    async navigateToLoginPage(url: string = DEFAULT_LOGIN_URL) {
+        await this.page.goto(url);
     }
 
-    async login(username: string, password: string) {
+    async login(credentials: LoginCredentials = {}) {
+        const username = credentials.username ?? DEFAULT_CREDENTIALS.username;
+        const password = credentials.password ?? DEFAULT_CREDENTIALS.password;
+
         if (!username || !password) {
-            throw new Error('Username and password are required');
+            throw new Error('Username and password are required for login');
         }
         await this.usernameInput.fill(username);
         await this.passwordInput.fill(password);
@@ -29,3 +33,4 @@ export class LoginPage {
         await this.page.waitForURL((url) => !url.href.includes('/login'), { timeout: 15000 });
     }
 }
+

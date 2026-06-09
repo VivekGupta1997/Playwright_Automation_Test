@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { UserData, DEFAULT_USER_DATA, DEFAULT_LOGIN_URL } from '../tests/testData';
 
 export class UserPage {
     readonly page: Page;
@@ -42,7 +43,7 @@ export class UserPage {
     }
 
     async navigateToUsersPage() {
-        await this.page.goto('https://yellow-plant-07ff7231e.5.azurestaticapps.net/');
+        await this.page.goto(DEFAULT_LOGIN_URL);
         await this.usersButton.click();
     }
 
@@ -50,36 +51,62 @@ export class UserPage {
         await this.addUsersButton.click();
     }
 
-    async selectOrganization() {
+    async selectOrganization(orgName?: string) {
+        const targetOrg = orgName ?? DEFAULT_USER_DATA.organization;
         await this.organizationDropdown.click();
-        await this.etrakDemo3Option.click();
+        if (targetOrg === 'Etrak demo 3') {
+            await this.etrakDemo3Option.click();
+        } else {
+            await this.page.getByRole('option', { name: targetOrg }).click();
+        }
         await this.page.keyboard.press('Escape');
     }
 
-    async fillUserDetails() {
-        await this.firstNameInput.fill('ranger');
-        await this.lastNameInput.fill('new');
-        await this.emailInput.fill('ranger1254@gmail.com');
-        await this.address1Input.fill('Indore');
-        await this.cityInput.fill('Indore');
+    async fillUserDetails(data: UserData = {}) {
+        const firstName = data.firstName ?? DEFAULT_USER_DATA.firstName;
+        const lastName = data.lastName ?? DEFAULT_USER_DATA.lastName;
+        const email = data.email ?? DEFAULT_USER_DATA.email;
+        const address1 = data.address1 ?? DEFAULT_USER_DATA.address1;
+        const city = data.city ?? DEFAULT_USER_DATA.city;
+        const state = data.state ?? DEFAULT_USER_DATA.state;
+        const zipCode = data.zipCode ?? DEFAULT_USER_DATA.zipCode;
+        const phoneNumber = data.phoneNumber ?? DEFAULT_USER_DATA.phoneNumber;
+
+        await this.firstNameInput.fill(firstName);
+        await this.lastNameInput.fill(lastName);
+        await this.emailInput.fill(email);
+        await this.address1Input.fill(address1);
+        await this.cityInput.fill(city);
         await this.stateDropdown.click();
-        await this.arizonaOption.click();
-        await this.zipCodeInput.fill('452015');
-        await this.phoneNumberInput.fill('(999)999-99999');
+        
+        if (state === 'Arizona') {
+            await this.arizonaOption.click();
+        } else {
+            await this.page.getByRole('option', { name: state, exact: true }).click();
+        }
+        
+        await this.zipCodeInput.fill(zipCode);
+        await this.phoneNumberInput.fill(phoneNumber);
     }
 
-    async selectRole() {
+    async selectRole(roleName?: string) {
+        const targetRole = roleName ?? DEFAULT_USER_DATA.role;
         await this.roleCheckbox.click();
-        await this.rentalRoleOption.click();
+        if (targetRole.toLowerCase() === 'rental') {
+            await this.rentalRoleOption.click();
+        } else {
+            await this.page.getByRole('option', { name: new RegExp(targetRole, 'i') }).click();
+        }
         await this.page.keyboard.press('Escape');
     }
 
-    async selectDOB() {
-        // Direct format filling is much more reliable than navigating the MUI calendar popups
-        await this.dobInput.fill('04/15/1994');
+    async selectDOB(dob?: string) {
+        const targetDob = dob ?? DEFAULT_USER_DATA.dob;
+        await this.dobInput.fill(targetDob);
     }
 
     async saveUser() {
         await this.saveButton.click();
     }
 }
+

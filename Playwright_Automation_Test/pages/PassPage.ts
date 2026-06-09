@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { PassData, FeeData, DEFAULT_PASS_DATA } from '../tests/testData';
 
 export class PassPage {
     readonly page: Page;
@@ -59,37 +60,64 @@ export class PassPage {
         await this.addPassLink.click();
     }
 
-    async fillPassDetails() {
+    async fillPassDetails(data: PassData = {}) {
+        const namePrefix = data.namePrefix ?? DEFAULT_PASS_DATA.namePrefix;
+        const organization = data.organization ?? DEFAULT_PASS_DATA.organization;
+        const passType = data.passType ?? DEFAULT_PASS_DATA.passType;
+        const numberPunches = data.numberPunches ?? DEFAULT_PASS_DATA.numberPunches;
+
         await this.organizationDropdown.click();
-        await this.etrakDemo3Option.click();
+        if (organization === 'Etrak demo 3') {
+            await this.etrakDemo3Option.click();
+        } else {
+            await this.page.getByRole('option', { name: organization }).click();
+        }
 
         await this.nameInput.click();
-        // Use timestamp to avoid conflicts with existing pass names
         const timestamp = new Date().getTime();
-        await this.nameInput.fill(`New Pass ${timestamp}`);
+        await this.nameInput.fill(`${namePrefix} ${timestamp}`);
 
         await this.passTypeDropdown.click();
-        await this.punchPassOption.click();
+        if (passType === 'Punch Pass') {
+            await this.punchPassOption.click();
+        } else {
+            await this.page.getByRole('option', { name: passType }).click();
+        }
 
         await this.numberPunchesInput.click();
-        await this.numberPunchesInput.fill('10');
+        await this.numberPunchesInput.fill(numberPunches);
 
         await this.nextButton.click();
     }
 
-    async fillFeeDetailsAndPublish() {
+    async fillFeeDetailsAndPublish(fee: FeeData = {}) {
+        const defaultFee = DEFAULT_PASS_DATA.fee;
+        const feeName = fee.name ?? defaultFee.name;
+        const amount = fee.amount ?? defaultFee.amount;
+        const gla = fee.gla ?? defaultFee.gla;
+        const deferredRevenue = fee.deferredRevenue ?? defaultFee.deferredRevenue;
+
         await this.feeNameInput.click();
-        await this.feeNameInput.fill('fee');
+        await this.feeNameInput.fill(feeName);
 
         await this.amountInput.click();
-        await this.amountInput.fill('050');
+        await this.amountInput.fill(amount);
 
         await this.glaDropdown.click();
-        await this.glaTestOption.click();
+        if (gla === 'Gla test') {
+            await this.glaTestOption.click();
+        } else {
+            await this.page.getByRole('option', { name: gla }).click();
+        }
 
         await this.deferredRevenueDropdown.click();
-        await this.deferredRevenueOption.click();
+        if (deferredRevenue === 'Deferred Revenue Test KMO') {
+            await this.deferredRevenueOption.click();
+        } else {
+            await this.page.getByRole('option', { name: deferredRevenue }).click();
+        }
 
         await this.publishButton.click();
     }
 }
+

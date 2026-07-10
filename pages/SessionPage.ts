@@ -4,10 +4,16 @@ export class SessionPage {
     constructor(readonly page: Page) {}
 
     async navigateToAddSession() {
-        if (await this.page.getByRole('button', { name: 'Offerings' }).isVisible()) {
-            await this.page.getByRole('button', { name: 'Offerings' }).click();
+        const sessionsLink = this.page.getByRole('link', { name: 'Sessions', exact: true })
+            .or(this.page.getByRole('button', { name: 'Sessions' }))
+            .first();
+
+        if (!await sessionsLink.isVisible()) {
+            const offerings = this.page.getByRole('button', { name: 'Offerings' });
+            if (await offerings.isVisible()) await offerings.click();
         }
-        await this.page.getByRole('link', { name: 'Sessions', exact: true }).click();
+
+        await sessionsLink.click();
         await this.page.getByRole('link', { name: 'Add Session' }).click();
     }
 
@@ -82,9 +88,10 @@ export class SessionPage {
     async fillFeeDetailsAndPublish(
         feeName: string = 'Fee',
         amount: string = '020',
-        gla: string = 'Gla test',
-        deferredRevenue: string = 'Deferred Revenue Test KMO',
-        taxRate: string = '0.5'
+        gla: string = 'lost',
+        deferredRevenue: string = 'Deferred Revenue',
+        taxRate: string = '0.5',
+        shouldNavigateToList: boolean = true
     ) {
         // Fee Name
         await this.page.getByRole('textbox', { name: 'Fee Name' }).fill(feeName);
@@ -100,18 +107,12 @@ export class SessionPage {
         await this.page.locator('#mui-component-select-selectedDeferredRevenue').click();
         await this.page.getByRole('option', { name: deferredRevenue }).click();
         
-        // Liability Account Selection
-        const liabilityDropdown = this.page.locator('.MuiGrid-root.MuiGrid-item.MuiGrid-grid-xs-12.MuiGrid-grid-sm-6 > .css-1n8fa5z > .MuiFormControl-root > .MuiInputBase-root').first();
-        await liabilityDropdown.click();
-        await this.page.getByRole('option', { name: 'None' }).first().click();
-        
-        // GLA Account Selection
+        // GLA Account Selection (Tax GLA)
         await this.page.locator('#mui-component-select-glaAccountId').click();
-        await this.page.getByRole('option', { name: 'Sales Tax Liability' }).click();
+        await this.page.getByRole('option', { name: 'Tax sale', exact: true }).click();
         
         // Tax Dropdown Selection
-        const taxDropdown = this.page.locator('.MuiGrid-root.MuiGrid-container.MuiGrid-spacing-xs-2 > div:nth-child(2) > .css-1n8fa5z > .MuiFormControl-root > .MuiInputBase-root');
-        await taxDropdown.click();
+        await this.page.locator('#mui-component-select-taxId').click();
         await this.page.getByRole('option', { name: 'Standard Tax' }).click();
         
         // Tax Rate
@@ -119,5 +120,9 @@ export class SessionPage {
         
         // Publish
         await this.page.getByRole('button', { name: 'Publish' }).click();
+
+        if (shouldNavigateToList) {
+            await this.page.getByRole('link', { name: 'Session List View' }).click();
+        }
     }
 }

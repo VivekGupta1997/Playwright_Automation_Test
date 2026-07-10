@@ -5,4 +5,9 @@ export * from './UserPage';
 export * from './SessionPage';
 export * from './EventPage';
 export * from './ResourcePage';
+export * from './catalogPage';
+export * from './SeatBookingPage';
+export * from './SeatCreationPage';
+export * from './helpers';
+
 

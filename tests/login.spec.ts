@@ -8,7 +8,7 @@ test('Login Test', async ({ page }) => {
 
     // Navigate to the login page
     await loginPage.navigateToLoginPage();
-    
+
     // Perform login action using defaults
     await loginPage.login();
 

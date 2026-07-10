@@ -1,10 +1,11 @@
 import { Page } from '@playwright/test';
+import testData from '../testData.json';
 
 export class LoginPage {
-    constructor(readonly page: Page) {}
+    constructor(readonly page: Page) { }
 
     async navigateToLoginPage() {
-        await this.page.goto('https://yellow-plant-07ff7231e.5.azurestaticapps.net/');
+        await this.page.goto(testData.app.loginUrl);
     }
 
     async fillUsername(username: string) {
@@ -17,11 +18,13 @@ export class LoginPage {
 
     async clickSignIn() {
         await this.page.getByRole('button', { name: 'Sign in', exact: true }).click();
-        // Wait for the login redirection to complete
-        await this.page.waitForURL((url) => !url.href.includes('/login'), { timeout: 15000 });
+        await this.page.waitForURL((url) => !url.href.includes('/login'), { waitUntil: 'commit', timeout: 30000 });
     }
 
-    async login(username: string = 'viveksystemadmin@gmail.com', password: string = 'viveksystemadmin') {
+    async login(
+        username: string = testData.credentials.admin.username,
+        password: string = testData.credentials.admin.password
+    ) {
         await this.fillUsername(username);
         await this.fillPassword(password);
         await this.clickSignIn();

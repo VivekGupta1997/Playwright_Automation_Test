@@ -1,63 +1,49 @@
 import { Page } from '@playwright/test';
+import { navigateToOfferingsSection, uniqueName } from './helpers';
+import testData from '../testData.json';
+
+const D = testData.resource;
 
 export class ResourcePage {
-    constructor(readonly page: Page) {}
+    constructor(readonly page: Page) { }
 
     async navigateToAddResource() {
-        if (await this.page.getByRole('button', { name: 'Offerings' }).isVisible()) {
-            await this.page.getByRole('button', { name: 'Offerings' }).click();
-        }
-        await this.page.getByRole('link', { name: 'Resources', exact: true }).or(this.page.getByRole('button', { name: 'Resources' })).first().click();
+        await navigateToOfferingsSection(this.page, 'Resources');
         await this.page.getByRole('link', { name: 'Add Resource' }).click();
     }
 
-    async selectOrganization(organization: string = 'Etrak demo 3') {
+    async selectOrganization(organization: string = testData.organization) {
         await this.page.locator('#mui-component-select-organization').click();
         await this.page.getByRole('option', { name: organization }).click();
     }
 
-    async fillResourceName(namePrefix: string = 'resource a') {
+    async fillResourceName(namePrefix: string = D.namePrefix) {
         await this.page.getByRole('textbox', { name: 'Name' }).click();
-        const timestamp = Date.now();
-        await this.page.getByRole('textbox', { name: 'Name' }).fill(`${namePrefix} ${timestamp}`);
+        await this.page.getByRole('textbox', { name: 'Name' }).fill(uniqueName(namePrefix));
     }
 
-    async selectConnectedResource(connectedResource: string = 'hotel landmark') {
+    async selectConnectedResource(connectedResource: string = D.connectedResource) {
         await this.page.locator('#mui-component-select-connectedResource').click();
         await this.page.getByRole('option', { name: connectedResource }).click();
     }
 
-    async clickNext() {
-        await this.page.getByRole('button', { name: 'Next' }).click();
-    }
-
     async fillResourceDetails(
-        organization: string = 'Etrak demo 3',
-        namePrefix: string = 'resource a',
-        connectedResource: string = 'hotel landmark'
+        organization: string = testData.organization,
+        namePrefix: string = D.namePrefix,
+        connectedResource: string = D.connectedResource
     ) {
         await this.selectOrganization(organization);
         await this.fillResourceName(namePrefix);
         await this.selectConnectedResource(connectedResource);
-        await this.clickNext();
-        await this.clickNext();
+        await this.page.getByRole('button', { name: 'Next' }).click();
+        await this.page.getByRole('button', { name: 'Next' }).click();
     }
 
     async fillFeeDetailsAndPublish(
-        fee1: { name: string; amount: string; gla: string; deferredRevenue: string } = {
-            name: 'Fee',
-            amount: '020',
-            gla: 'lost',
-            deferredRevenue: 'Deferred Revenue Test KMO',
-        },
-        fee2: { name: string; frequency: string; amount: string; deferredRevenue: string } = {
-            name: 'fee 2',
-            frequency: 'Hourly',
-            amount: '050',
-            deferredRevenue: 'Deferred Revenue Test KMO',
-        }
+        fee1: { name: string; amount: string; gla: string; deferredRevenue: string } = D.fee1,
+        fee2: { name: string; frequency: string; amount: string; deferredRevenue: string } = D.fee2
     ) {
-        // 1. First Fee
+        // First fee
         await this.page.getByRole('textbox', { name: 'Fee Name' }).click();
         await this.page.getByRole('textbox', { name: 'Fee Name' }).fill(fee1.name);
 
@@ -70,7 +56,7 @@ export class ResourcePage {
         await this.page.locator('#mui-component-select-selectedDeferredRevenue').click();
         await this.page.getByRole('option', { name: fee1.deferredRevenue }).click();
 
-        // 2. Add Second Fee
+        // Add second fee
         await this.page.getByRole('button', { name: 'Add Another Fee' }).click();
 
         await this.page.getByRole('textbox', { name: 'Fee Name' }).last().click();
@@ -85,7 +71,7 @@ export class ResourcePage {
         await this.page.locator('#mui-component-select-selectedDeferredRevenue').last().click();
         await this.page.getByRole('option', { name: fee2.deferredRevenue }).click();
 
-        // 3. Publish and list view
+        // Publish
         await this.page.getByRole('button', { name: 'Publish' }).click();
         await this.page.getByRole('link', { name: 'Resource List View' }).click();
     }

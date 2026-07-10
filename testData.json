@@ -1,0 +1,154 @@
+{
+    "app": {
+        "baseUrl": "https://www.etrak-recsoftware.com",
+        "loginUrl": "https://www.etrak-recsoftware.com/login"
+    },
+    "credentials": {
+        "admin": {
+            "username": "vishal@gmail.com",
+            "password": "vishaltiwari"
+        }
+    },
+    "organization": "Etrak demo 3",
+    "user": {
+        "firstName": "ranger",
+        "lastName": "new",
+        "email": "ranger1254@gmail.com",
+        "address1": "Indore",
+        "city": "Indore",
+        "state": "Arizona",
+        "zipCode": "452015",
+        "phoneNumber": "(999)999-9999",
+        "role": "rental",
+        "dob": "04/15/1994",
+        "familyMember": {
+            "firstName": "henry",
+            "lastName": "broke",
+            "city": "Indore",
+            "dobYear": "2004",
+            "dobMonth": "June"
+        }
+    },
+    "resource": {
+        "namePrefix": "resource a",
+        "connectedResource": "Boxing Ring",
+        "fee1": {
+            "name": "Fee",
+            "amount": "020",
+            "gla": "lost",
+            "deferredRevenue": "Deferred Revenue"
+        },
+        "fee2": {
+            "name": "fee 2",
+            "frequency": "Hourly",
+            "amount": "050",
+            "deferredRevenue": "Deferred Revenue"
+        }
+    },
+    "event": {
+        "namePrefix": "Event game",
+        "connectedResource": "Boxing Ring",
+        "maxAttendance": "20",
+        "userTicketLimit": "4",
+        "familyTicketLimit": "6",
+        "ticket": {
+            "name": "fee",
+            "amount": "020",
+            "gla": "lost",
+            "deferredRevenue": "Deferred Revenue",
+            "glaAccount": "Tax sale",
+            "taxId": "Standard Tax",
+            "taxRate": "0.5"
+        }
+    },
+    "seatBookingEvent": {
+        "namePrefix": "seat booking with multiple user",
+        "connectedResource": "R 1 Resources",
+        "maxAttendance": "2",
+        "userTicketLimit": "2",
+        "familyTicketLimit": "3",
+        "layout": {
+            "name": "Test",
+            "seatingType": "Table Type",
+            "numberOfTables": "5",
+            "seatsPerTable": "5",
+            "tableShape": "Circular",
+            "tableToSelect": "Table 5"
+        },
+        "ticket": {
+            "name": "Fee",
+            "amount": "050",
+            "gla": "lost",
+            "deferredRevenue": "Deferred Revenue",
+            "glaAccount": "Sales Tax Liability",
+            "taxId": "Standard Tax",
+            "taxRate": "0.6"
+        },
+        "booking": {
+            "quantity": "02",
+            "orgSearchText": "et",
+            "eventOfferingId": "FEA5426C-B19B-450D-90E7-C0F7D7A64FD9"
+        }
+    },
+    "program": {
+        "namePrefix": "New Program",
+        "connectedResource": "R 1 Resources",
+        "maxAttendance": "10",
+        "fee": {
+            "name": "Fee",
+            "amount": "010",
+            "gla": "lost",
+            "deferredRevenue": null,
+            "glaAccount": "Tax sale",
+            "taxId": "Standard Tax",
+            "taxRate": "0.5",
+            "clickAddMoreTax": true
+        },
+        "addon": {
+            "name": "add on new",
+            "price": "30",
+            "maxNumAvailable": "010",
+            "gla": "lost",
+            "glaAccount": "Tax sale",
+            "taxId": "Standard Tax",
+            "taxRate": "0.6",
+            "setupTax": false
+        }
+    },
+    "pass": {
+        "namePrefix": "New Pass",
+        "passType": "Punch Pass",
+        "passLevel": "Family",
+        "numberPunches": "10",
+        "fee": {
+            "name": "fee",
+            "amount": "050",
+            "gla": "lost",
+            "deferredRevenue": "Deferred Revenue"
+        }
+    },
+    "session": {
+        "namePrefix": "event 2",
+        "maxAttendance": "10",
+        "schedule": {
+            "dayOffset": 3,
+            "startHour": 1,
+            "endHour": 5
+        },
+        "fee": {
+            "name": "Fee",
+            "amount": "020",
+            "gla": "lost",
+            "deferredRevenue": "Deferred Revenue",
+            "glaAccount": "Tax sale",
+            "taxId": "Standard Tax",
+            "taxRate": "0.5"
+        }
+    },
+    "dropdowns": {
+        "glaOptions": ["lost"],
+        "deferredRevenueOptions": ["Deferred Revenue"],
+        "glaAccountOptions": ["Tax sale"],
+        "taxOptions": ["Standard Tax"]
+    }
+}

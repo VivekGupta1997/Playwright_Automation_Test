@@ -11,9 +11,8 @@ test('Purchase Pass Test', async ({ page }) => {
     await loginPage.navigateToLoginPage();
     await loginPage.login();
 
-    // Navigate to catalog and filter by organization
-    await shopPage.navigateToCatalog();
-    await shopPage.filterCatalogByOrganization('Etrak demo 3');
+    // Navigate to catalog and filter by organization (org filter is built into navigateToCatalog)
+    await shopPage.navigateToCatalog('Etrak demo 3');
 
     // Navigate to offerings and filter by offering type "Pass"
     await shopPage.navigateToOfferings();

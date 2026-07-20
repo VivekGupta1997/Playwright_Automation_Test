@@ -4,8 +4,8 @@ import testData from '../testData.json';
 export class LoginPage {
     constructor(readonly page: Page) { }
 
-    async navigateToLoginPage() {
-        await this.page.goto(testData.app.loginUrl);
+    async navigateToLoginPage(url: string = testData.app.loginUrl) {
+        await this.page.goto(url);
     }
 
     async fillUsername(username: string) {

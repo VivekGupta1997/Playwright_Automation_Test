@@ -62,7 +62,7 @@ export class UserPage {
         const dobContainer = this.page.locator('.MuiInputBase-root', {
             has: this.page.getByRole('button', { name: 'Choose date' }),
         });
-        await dobContainer.locator('input').fill(dob);
+        await dobContainer.last().locator('input').fill(dob);
     }
 
     async saveUser() {
@@ -83,19 +83,25 @@ export class UserPage {
 
     async addFamilyMember(data: { firstName: string; lastName: string; city: string; dobYear: string; dobMonth: string }) {
         await this.page.getByRole('button', { name: 'Family Members' }).click();
-        await this.page.locator('.MuiButtonBase-root.MuiFab-root.MuiFab-circular.MuiFab-sizeSmall.MuiFab-primary.css-8ppvap').click();
+        await this.page.locator("//button[@aria-label='Add Family Member']//*[name()='svg']").click();
 
         await this.page.locator('input[name="firstName"]').fill(data.firstName);
         await this.page.locator('input[name="lastName"]').fill(data.lastName);
-        await this.page.getByRole('button', { name: 'Save' }).click();
-
         await this.page.locator('input[name="city"]').fill(data.city);
 
-        await this.page.getByRole('button', { name: 'Choose date' }).click();
-        await this.page.getByText(data.dobMonth).click();
-        await this.page.getByRole('radio', { name: data.dobYear }).click();
+        // Convert month name (e.g. "June") to a two-digit number (e.g. "06")
+        const monthMap: Record<string, string> = {
+            January: '01', February: '02', March: '03', April: '04', May: '05', June: '06',
+            July: '07', August: '08', September: '09', October: '10', November: '11', December: '12'
+        };
+        const mm = monthMap[data.dobMonth] || '01';
+        const formattedDob = `${mm}/01/${data.dobYear}`;
+        
+        await this.selectDOB(formattedDob);
 
         await this.page.getByText('Gender').click();
+        
+        // Save the family member after all fields are filled
         await this.page.getByRole('button', { name: 'Save' }).click();
     }
 }

@@ -18,6 +18,9 @@ import {
     SessionPage,
     SeatBookingPage,
     SeatCreationPage,
+    SchedulerPage,
+    POSPage,
+    SalePage,
 } from '../pages';
 
 // Define the shape of our custom fixtures
@@ -31,6 +34,9 @@ type AppFixtures = {
     sessionPage: SessionPage;
     seatBookingPage: SeatBookingPage;
     seatCreationPage: SeatCreationPage;
+    schedulerPage: SchedulerPage;
+    posPage: POSPage;
+    salePage: SalePage;
 };
 
 export const test = base.extend<AppFixtures>({
@@ -44,7 +50,9 @@ export const test = base.extend<AppFixtures>({
     sessionPage: async ({ page }, use) => use(new SessionPage(page)),
     seatBookingPage: async ({ page }, use) => use(new SeatBookingPage(page)),
     seatCreationPage: async ({ page }, use) => use(new SeatCreationPage(page)),
+    schedulerPage: async ({ page }, use) => use(new SchedulerPage(page)),
+    posPage: async ({ page }, use) => use(new POSPage(page)),
+    salePage: async ({ page }, use) => use(new SalePage(page)),
 });
 
 export { expect } from '@playwright/test';
-

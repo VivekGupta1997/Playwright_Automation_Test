@@ -145,6 +145,20 @@
             "taxRate": "0.5"
         }
     },
+    "sale": {
+        "namePrefix": "sale item",
+        "connectedOfferings": ["kedarnath", "test"],
+        "startingQuantity": "050",
+        "fee": {
+            "name": "Fee ",
+            "amount": "030",
+            "gla": "lost",
+            "glaAccount": "Tax sale",
+            "taxId": "Standard Tax",
+            "taxRate": "0.6",
+            "clickAddMoreTax": true
+        }
+    },
     "dropdowns": {
         "glaOptions": ["lost"],
         "deferredRevenueOptions": ["Deferred Revenue"],

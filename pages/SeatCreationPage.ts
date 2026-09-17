@@ -49,7 +49,8 @@ export class SeatCreationPage {
         await this.page.locator('input[name="familyTicketLimit"]').fill(familyTicketLimit);
 
         // Event date (offset 7 days) + duration
-        await this.page.getByRole('button', { name: 'Choose date' }).first().click();
+        const eventDateContainer = this.page.locator('div').filter({ hasText: /^Event Start Date and Time \*/ }).last();
+        await eventDateContainer.getByRole('button', { name: 'Choose date' }).click();
         await selectCalendarDay(this.page, 7);
         await this.page.getByRole('option', { name: '3 hours' }).click();
         await this.page.getByRole('option', { name: 'PM' }).click();
@@ -57,18 +58,31 @@ export class SeatCreationPage {
         await this.page.getByRole('option', { name: '5 hours' }).click();
         await this.page.getByRole('option', { name: 'PM' }).click();
         await this.page.keyboard.press('Escape');
-        await this.page.waitForTimeout(300);
+        await this.page.waitForTimeout(500);
+        await handleConflictDialog(this.page);
 
         // Registration start date
-        await this.page.getByRole('button', { name: 'Choose date' }).nth(1).click();
+        const regStartContainer = this.page.locator('div').filter({ hasText: /^Event Ticket Purchase Start Date \*/ }).last();
+        await regStartContainer.getByRole('button', { name: 'Choose date' }).click();
         await selectCalendarDay(this.page, 1);
+        const okBtn = this.page.getByRole('button', { name: 'OK' });
+        if (await okBtn.isVisible()) {
+            await okBtn.click();
+        }
+        await this.page.keyboard.press('Escape').catch(() => {});
+        await this.page.waitForTimeout(300);
         await handleConflictDialog(this.page);
-        await this.page.getByRole('button', { name: 'OK' }).click();
 
         // Registration end date
-        await this.page.getByRole('button', { name: 'Choose date', exact: true }).click();
+        const regEndContainer = this.page.locator('div').filter({ hasText: /^Event Ticket Purchase Deadline \*/ }).last();
+        await regEndContainer.getByRole('button', { name: 'Choose date' }).click();
         await selectCalendarDay(this.page, 4);
-        await this.page.getByRole('button', { name: 'OK' }).click();
+        if (await okBtn.isVisible()) {
+            await okBtn.click();
+        }
+        await this.page.keyboard.press('Escape').catch(() => {});
+        await this.page.waitForTimeout(300);
+        await handleConflictDialog(this.page);
     }
 
     async enableSeatSelection() {

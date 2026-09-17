@@ -12,4 +12,7 @@ export * from './helpers';
 export * from './SchedulerPage';
 export * from './POSPage';
 export * from './SalePage';
+export * from './RefundPage';
+export * from './ApiPage';
+
 

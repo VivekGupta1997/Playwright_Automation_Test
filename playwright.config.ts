@@ -19,6 +19,9 @@ export default defineConfig({
 
   use: {
     viewport: null, // Sets viewport to the actual browser window size
+    trace: 'on-first-retry',
+    video: 'retain-on-failure',
+    screenshot: 'on',
     launchOptions: {
       slowMo: 2000,
       args: ['--start-maximized'] // Maximizes the browser window on launch

@@ -9,16 +9,23 @@
   "scripts": {
     "test": "playwright test",
     "test:ui": "playwright test --ui",
-    "test:headed": "playwright test --headed"
+    "test:headed": "playwright test --headed",
+    "zephyr:sync": "tsx zephyr_sync.ts",
+    "zephyr:clean": "tsx zephyr_sync.ts --clean",
+    "zephyr:diagnose": "tsx zephyr_sync.ts --diagnose"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@azure/identity": "^4.13.3",
+    "@azure/playwright": "^1.1.6",
+    "@cucumber/cucumber": "^13.2.1",
     "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.3",
     "dotenv": "^17.4.2",
+    "tsx": "^4.23.13",
     "typescript": "^6.0.3"
   }
 }

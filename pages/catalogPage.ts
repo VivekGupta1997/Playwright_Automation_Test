@@ -4,17 +4,23 @@ export class catalogPage {
     constructor(readonly page: Page) { }
 
     async navigateToCatalog(orgName: string = 'Etrak demo 3') {
-        // Step 1: Go to homepage
-        await this.page.goto('https://www.etrak-recsoftware.com/');
+        // Direct navigation to the offerings catalog page
+        await this.page.goto('https://www.etrak-recsoftware.com/shop/offerings');
+        await this.page.waitForLoadState('domcontentloaded');
 
-        // Step 2: Filter by organization on homepage (must happen BEFORE Full Catalog)
-        await this.page.getByRole('button').nth(2).click();
-        await this.page.getByRole('combobox', { name: 'Organization(s)' }).click();
-        await this.page.getByRole('combobox', { name: 'Organization(s)' }).fill(orgName.slice(0, 4));
-        await this.page.getByRole('option', { name: orgName }).click();
-
-        // Step 3: Click Full Catalog to enter the catalog page
-        await this.page.getByRole('button', { name: 'Full Catalog' }).click();
+        // Select organization on shop page if not selected
+        const orgField = this.page.getByRole('combobox', { name: /Organization/i }).or(this.page.locator('#mui-component-select-organization')).or(this.page.locator('input[name="organization"]')).first();
+        if (await orgField.isVisible({ timeout: 5000 }).catch(() => false)) {
+            await orgField.click();
+            const option = this.page.getByRole('option', { name: orgName });
+            if (await option.isVisible({ timeout: 3000 }).catch(() => false)) {
+                await option.click();
+            } else {
+                await this.page.keyboard.type(orgName.slice(0, 4));
+                await this.page.getByRole('option', { name: orgName }).first().click();
+            }
+        }
+        await this.page.waitForTimeout(1000);
     }
 
     async navigateToOfferings() {
@@ -38,15 +44,20 @@ export class catalogPage {
     }
 
     async selectOffering(offeringName: string = 'Membership Recurring') {
-        const imgLocator = this.page.getByRole('img', { name: offeringName });
-        const linkLocator = this.page.getByRole('link', { name: offeringName });
-
-        if (await imgLocator.isVisible().catch(() => false)) {
-            await imgLocator.click();
-        } else {
-            await linkLocator.click();
+        const searchInput = this.page.getByPlaceholder('Search Product');
+        if (await searchInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+            await searchInput.fill(offeringName);
+            await searchInput.press('Enter');
+            await this.page.waitForTimeout(800);
         }
-        await this.page.getByRole('button', { name: 'directions' }).click();
+
+        const item = this.page.getByText(offeringName, { exact: false }).first();
+        await item.click();
+
+        const directionsBtn = this.page.getByRole('button', { name: 'directions' });
+        if (await directionsBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+            await directionsBtn.click();
+        }
     }
 
     async searchAndSelectUserAndAddToCart(lastName: string, fullName: string) {
@@ -55,6 +66,23 @@ export class catalogPage {
         await this.page.getByRole('textbox', { name: 'Search for user by last name' }).press('Enter');
         await this.page.getByRole('combobox', { name: 'Select User' }).click();
         await this.page.getByText(fullName).click();
+        await this.page.getByRole('button', { name: 'Add to Cart - $' }).click();
+    }
+
+    async searchAndSelectUserWithPricingAndAddToCart(
+        lastName: string,
+        fullName: string,
+        pricingLabel: string = '$60.00'
+    ) {
+        await this.page.getByRole('textbox', { name: 'Search for user by last name' }).click();
+        await this.page.getByRole('textbox', { name: 'Search for user by last name' }).fill(lastName);
+        await this.page.getByRole('textbox', { name: 'Search for user by last name' }).press('Enter');
+        await this.page.getByRole('combobox', { name: 'Select User' }).click();
+        await this.page.getByRole('paragraph').filter({ hasText: fullName }).click();
+
+        // Select pricing option (programs may have multiple fee tiers)
+        await this.page.getByRole('button', { name: pricingLabel }).click();
+
         await this.page.getByRole('button', { name: 'Add to Cart - $' }).click();
     }
 

@@ -39,7 +39,8 @@ export class EventPage {
 
     async selectEventDates(eventDateOffset: number = 7, regStartOffset: number = 0, regEndOffset: number = 3) {
         // Event date + duration
-        await this.page.getByRole('button', { name: 'Choose date' }).first().click();
+        const eventDateContainer = this.page.locator('div').filter({ hasText: /^Event Start Date and Time \*/ }).last();
+        await eventDateContainer.getByRole('button', { name: 'Choose date' }).click();
         await selectCalendarDay(this.page, eventDateOffset);
         await this.page.getByRole('option', { name: '1 hours', exact: true }).click();
         await this.page.getByRole('option', { name: 'PM' }).click();
@@ -47,17 +48,31 @@ export class EventPage {
         await this.page.getByRole('option', { name: '5 hours' }).click();
         await this.page.getByRole('option', { name: 'PM' }).click();
         await this.page.keyboard.press('Escape');
-        await this.page.waitForTimeout(300);
+        await this.page.waitForTimeout(500);
+        await handleConflictDialog(this.page);
 
         // Registration start date
-        await this.page.getByRole('button', { name: 'Choose date' }).nth(1).click();
+        const regStartContainer = this.page.locator('div').filter({ hasText: /^Event Ticket Purchase Start Date \*/ }).last();
+        await regStartContainer.getByRole('button', { name: 'Choose date' }).click();
         await selectCalendarDay(this.page, regStartOffset);
-        await this.page.getByRole('button', { name: 'OK' }).click();
+        const okBtn = this.page.getByRole('button', { name: 'OK' });
+        if (await okBtn.isVisible()) {
+            await okBtn.click();
+        }
+        await this.page.keyboard.press('Escape').catch(() => {});
+        await this.page.waitForTimeout(300);
+        await handleConflictDialog(this.page);
 
         // Registration end date
-        await this.page.getByRole('button', { name: 'Choose date', exact: true }).click();
+        const regEndContainer = this.page.locator('div').filter({ hasText: /^Event Ticket Purchase Deadline \*/ }).last();
+        await regEndContainer.getByRole('button', { name: 'Choose date' }).click();
         await selectCalendarDay(this.page, regEndOffset);
-        await this.page.getByRole('button', { name: 'OK' }).click();
+        if (await okBtn.isVisible()) {
+            await okBtn.click();
+        }
+        await this.page.keyboard.press('Escape').catch(() => {});
+        await this.page.waitForTimeout(300);
+        await handleConflictDialog(this.page);
     }
 
     async fillEventDetails(

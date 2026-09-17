@@ -21,6 +21,8 @@ import {
     SchedulerPage,
     POSPage,
     SalePage,
+    RefundPage,
+    ApiPage,
 } from '../pages';
 
 // Define the shape of our custom fixtures
@@ -37,6 +39,8 @@ type AppFixtures = {
     schedulerPage: SchedulerPage;
     posPage: POSPage;
     salePage: SalePage;
+    refundPage: RefundPage;
+    apiPage: ApiPage;
 };
 
 export const test = base.extend<AppFixtures>({
@@ -53,6 +57,8 @@ export const test = base.extend<AppFixtures>({
     schedulerPage: async ({ page }, use) => use(new SchedulerPage(page)),
     posPage: async ({ page }, use) => use(new POSPage(page)),
     salePage: async ({ page }, use) => use(new SalePage(page)),
+    refundPage: async ({ page }, use) => use(new RefundPage(page)),
+    apiPage: async ({ request }, use) => use(new ApiPage(request)),
 });
 
 export { expect } from '@playwright/test';

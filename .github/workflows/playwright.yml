@@ -23,7 +23,6 @@ jobs:
 
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
-
     - name: Run Playwright tests
       env:
         PLAYWRIGHT_URL: ${{ secrets.PLAYWRIGHT_URL }}

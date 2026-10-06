@@ -7,7 +7,31 @@
         "admin": {
             "username": "vishal@gmail.com",
             "password": "vishaltiwari"
+        },
+        "invalid": {
+            "wrongPassword": {
+                "username": "vishal@gmail.com",
+                "password": "wrongPassword123"
+            },
+            "nonExistentUser": {
+                "username": "nonexistent_user@example.com",
+                "password": "WrongPassword123!"
+            },
+            "invalidEmailFormat": {
+                "username": "invalid-email-format",
+                "password": "somePassword123"
+            },
+            "empty": {
+                "username": "",
+                "password": ""
+            }
         }
+    },
+    "validationMessages": {
+        "emailRequired": "Email is required",
+        "passwordRequired": "Password is required",
+        "invalidEmail": "Must be a valid email",
+        "invalidCredentials": "Invalid username or password."
     },
     "organization": "Etrak demo 3",
     "user": {
